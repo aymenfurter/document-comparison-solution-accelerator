@@ -1,0 +1,30 @@
+# FastAPI and dependencies
+fastapi
+uvicorn
+python-multipart
+pydantic
+pydantic-settings
+
+# Azure Services
+azure-ai-formrecognizer
+openai
+
+# Document Processing
+beautifulsoup4
+diff-match-patch
+pandoc
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+
+# Utilities
+python-dotenv
+tenacity
+backoff
+numpy
+aiohttp
+
+# Error Handling & Logging
+structlog
