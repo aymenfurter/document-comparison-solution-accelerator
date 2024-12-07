@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock, patch, mock_open
 from fastapi import HTTPException
 from app.services.conversion import (
-    convert_to_html,
+    convert_to_text,  # Changed from convert_to_html
     _convert_with_pandoc,
     _convert_with_azure_di,
     cleanup_temp_files,
@@ -43,12 +43,10 @@ def mock_document_analysis_client():
 def test_convert_with_pandoc_success(sample_docx):
     """Test successful Pandoc conversion"""
     with patch('subprocess.run') as mock_run:
-        mock_run.return_value.stdout = "Converted HTML"
-        with patch('builtins.open', mock_open(read_data='<html>Converted content</html>')):
-            result = _convert_with_pandoc(sample_docx)
-            assert '<html>' in result
-            assert 'Converted content' in result
-            mock_run.assert_called_once()
+        mock_run.return_value.stdout = "Converted text"  # Changed from HTML
+        result = _convert_with_pandoc(sample_docx)
+        assert "Converted text" in result  # Changed assertion
+        mock_run.assert_called_once()
 
 def test_convert_with_pandoc_failure(sample_docx):
     """Test Pandoc conversion failure"""
@@ -62,14 +60,12 @@ def test_convert_with_azure_di_success(sample_docx, mock_document_analysis_clien
     """Test successful Azure Document Intelligence conversion"""
     with patch('app.services.conversion.settings') as mock_settings, \
          patch('app.services.conversion.DocumentAnalysisClient') as mock_client_class:
-        # Configure mock settings
         mock_settings.AZURE_DOC_INTELLIGENCE_ENDPOINT = 'https://test.azure.com'
         mock_settings.AZURE_DOC_INTELLIGENCE_KEY = 'test-key'
         mock_client_class.return_value = mock_document_analysis_client
         
         result = _convert_with_azure_di(sample_docx)
-        assert '<html>' in result
-        assert '<body>' in result
+        # Remove HTML assertions, check for plain text
         assert 'Test content line 1' in result
         assert 'Test content line 2' in result
 
@@ -101,23 +97,23 @@ def test_convert_with_azure_di_failure(sample_docx):
         assert exc_info.value.status_code == 500
         assert error_message in str(exc_info.value.detail)
 
-def test_convert_to_html_pandoc_success(sample_docx):
+def test_convert_to_text_pandoc_success(sample_docx):  # Changed from test_convert_to_html_pandoc_success
     """Test successful conversion using Pandoc"""
     with patch('app.services.conversion._convert_with_pandoc') as mock_pandoc:
-        mock_pandoc.return_value = "<html>Success</html>"
-        result = convert_to_html(sample_docx)
-        assert result == "<html>Success</html>"
+        mock_pandoc.return_value = "Converted text"  # Changed from HTML
+        result = convert_to_text(sample_docx)  # Changed from convert_to_html
+        assert result == "Converted text"
         mock_pandoc.assert_called_once_with(sample_docx)
 
-def test_convert_to_html_fallback_to_azure(sample_docx):
+def test_convert_to_text_fallback_to_azure(sample_docx):  # Renamed function
     """Test fallback to Azure DI when Pandoc fails"""
     with patch('app.services.conversion._convert_with_pandoc') as mock_pandoc:
         with patch('app.services.conversion._convert_with_azure_di') as mock_azure:
             mock_pandoc.side_effect = ConversionError("Pandoc failed")
-            mock_azure.return_value = "<html>Azure Success</html>"
+            mock_azure.return_value = "Azure Success Text"  # Changed from HTML
             
-            result = convert_to_html(sample_docx)
-            assert result == "<html>Azure Success</html>"
+            result = convert_to_text(sample_docx)
+            assert result == "Azure Success Text"
             mock_pandoc.assert_called_once()
             mock_azure.assert_called_once()
 
@@ -164,7 +160,7 @@ def test_convert_to_html_both_methods_fail(sample_docx):
             mock_azure.side_effect = HTTPException(status_code=500, detail="Azure failed")
             
             with pytest.raises(HTTPException) as exc_info:
-                convert_to_html(sample_docx)
+                convert_to_text(sample_docx)  # Changed from convert_to_html
             assert exc_info.value.status_code == 500
 
 @pytest.mark.parametrize("file_content", [
@@ -182,7 +178,7 @@ def test_convert_with_different_content_types(file_content):
         with patch('subprocess.run') as mock_run:
             mock_run.return_value.stdout = "Converted HTML"
             with patch('builtins.open', mock_open(read_data='<html>Converted</html>')):
-                result = convert_to_html(tmp.name)
+                result = convert_to_text(tmp.name)  # Changed from convert_to_html
                 assert result is not None
                 assert isinstance(result, str)
 
