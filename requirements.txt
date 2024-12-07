@@ -28,3 +28,7 @@ aiohttp
 
 # Error Handling & Logging
 structlog
+
+diff_match_patch
+
+instructor

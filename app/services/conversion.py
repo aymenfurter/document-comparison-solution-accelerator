@@ -1,5 +1,4 @@
 import subprocess
-import tempfile
 import os
 from typing import Optional
 from fastapi import HTTPException
@@ -8,16 +7,15 @@ from azure.core.credentials import AzureKeyCredential
 from app.core.config import settings
 import logging
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ConversionError(Exception):
     """Custom exception for conversion failures"""
     pass
 
-def convert_to_html(docx_path: str) -> str:
+def convert_to_text(docx_path: str) -> str:
     """
-    Convert DOCX to HTML using Pandoc with Azure Document Intelligence fallback
+    Convert DOCX to plain text using Pandoc with Azure Document Intelligence fallback
     """
     try:
         return _convert_with_pandoc(docx_path)
@@ -27,44 +25,35 @@ def convert_to_html(docx_path: str) -> str:
 
 def _convert_with_pandoc(docx_path: str) -> str:
     """
-    Convert DOCX to HTML using Pandoc
+    Convert DOCX to plain text using Pandoc
     """
-    with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as tmp_html:
-        try:
-            cmd = [
-                settings.PANDOC_PATH,
-                docx_path,
-                '-f', 'docx',
-                '-t', 'html',
-                '--extract-media=' + settings.TEMP_DIR,
-                '-s',  # Standalone HTML
-                '--wrap=none',
-                '-o', tmp_html.name
-            ]
-            
-            process = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            
-            with open(tmp_html.name, 'r', encoding='utf-8') as f:
-                html_content = f.read()
-                
-            return html_content
-            
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Pandoc conversion failed: {e.stderr}")
-            raise ConversionError(f"Pandoc conversion failed: {e.stderr}")
-        finally:
-            os.unlink(tmp_html.name)
+    try:
+        cmd = [
+            settings.PANDOC_PATH,
+            docx_path,
+            '-f', 'docx',
+            '-t', 'plain',
+            '--wrap=none'
+        ]
+        
+        process = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        return process.stdout
+        
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Pandoc conversion failed: {e.stderr}")
+        raise ConversionError(f"Pandoc conversion failed: {e.stderr}")
 
 def _convert_with_azure_di(docx_path: str) -> str:
     """
-    Convert DOCX to HTML using Azure Document Intelligence
+    Convert DOCX to plain text using Azure Document Intelligence
     """
-    # Check credentials first, before any file operations
+    # Check credentials
     endpoint = settings.AZURE_DOC_INTELLIGENCE_ENDPOINT
     key = settings.AZURE_DOC_INTELLIGENCE_KEY
     
@@ -72,12 +61,6 @@ def _convert_with_azure_di(docx_path: str) -> str:
         raise HTTPException(
             status_code=500,
             detail="Azure Document Intelligence credentials not configured"
-        )
-
-    if not os.path.exists(docx_path):
-        raise HTTPException(
-            status_code=500,
-            detail=f"File not found: {docx_path}"
         )
 
     try:
@@ -92,21 +75,17 @@ def _convert_with_azure_di(docx_path: str) -> str:
             )
         result = poller.result()
 
-        # Convert Azure DI result to HTML
-        html_parts = ['<html><body>']
+        # Extract text content
+        text_content = []
         for page in result.pages:
             for line in page.lines:
-                html_parts.append(f'<p>{line.content}</p>')
-        html_parts.append('</body></html>')
+                text_content.append(line.content)
         
-        return '\n'.join(html_parts)
+        return '\n'.join(text_content)
 
     except Exception as e:
         logger.error(f"Azure Document Intelligence conversion failed: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)  # Pass original error message
-        )
+        raise HTTPException(status_code=500, detail=str(e))
 
 def cleanup_temp_files():
     """Clean up temporary files in the TEMP_DIR"""

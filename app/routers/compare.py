@@ -1,9 +1,7 @@
-
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from app.core.config import settings
-from app.services.conversion import convert_to_html
-from app.services.normalization import normalize_html
+from app.services.conversion import convert_to_text
 from app.services.diffing import compute_diff
 from app.services.llm_changelog import generate_changelog
 import tempfile
@@ -37,25 +35,22 @@ async def upload_documents(
         target_tmp.write(target_content)
         
         try:
-            # Convert to HTML
-            source_html = convert_to_html(source_tmp.name)
-            target_html = convert_to_html(target_tmp.name)
-            
-            # Normalize HTML
-            source_normalized = normalize_html(source_html)
-            target_normalized = normalize_html(target_html)
+            # Convert to text
+            source_text = convert_to_text(source_tmp.name)
+            target_text = convert_to_text(target_tmp.name)
             
             # Compute diff
-            diff_result = compute_diff(source_normalized, target_normalized)
+            diff_result = compute_diff(source_text, target_text)
             
             # Generate changelog using LLM
             if diff_result["similarity_score"] >= settings.SIMILARITY_THRESHOLD:
-                changelog = await generate_changelog(diff_result["differences"])
+                changelog = await generate_changelog(diff_result["diff_text"])
             else:
                 changelog = {"warning": "Documents appear to be unrelated"}
-            
+
             return {
-                "diff_result": diff_result,
+                "diff_text": diff_result["diff_text"],
+                "similarity_score": diff_result["similarity_score"],
                 "changelog": changelog,
                 "warning": diff_result["similarity_score"] < settings.SIMILARITY_THRESHOLD
             }
