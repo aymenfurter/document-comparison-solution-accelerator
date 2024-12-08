@@ -1,6 +1,5 @@
 <div align="center">
   <h1>Document Comparison Solution Accelerator</h1>
-  <p><strong>A starting point for building change log generation use cases using Azure OpenAI and Document Intelligence</strong></p>
 </div>
 
 <div align="center">
@@ -20,7 +19,7 @@
 
 ## 🎯 Purpose
 
-This solution accelerator serves as a **reference implementation** and **starting point** for developers looking to build document comparison solutions using Azure services. It demonstrates:
+This solution accelerator serves as a **reference implementation** and **starting point** for developers looking to build change log generation use cases using Azure services. It demonstrates:
 
 - Integration of Azure OpenAI for intelligent change analysis
 - Usage of Azure Document Intelligence for OCR
