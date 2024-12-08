@@ -1,55 +1,16 @@
-import subprocess
 import os
 from typing import Optional
 from fastapi import HTTPException
-from azure.ai.formrecognizer import DocumentAnalysisClient
+from azure.ai.documentintelligence import DocumentIntelligenceClient
+from azure.ai.documentintelligence.models import AnalyzeDocumentRequest, AnalyzeResult
 from azure.core.credentials import AzureKeyCredential
 from app.core.config import settings
 import logging
+import base64
 
 logger = logging.getLogger(__name__)
 
-class ConversionError(Exception):
-    """Custom exception for conversion failures"""
-    pass
-
 def convert_to_text(docx_path: str) -> str:
-    """
-    Convert DOCX to plain text using Pandoc with Azure Document Intelligence fallback
-    """
-    try:
-        return _convert_with_pandoc(docx_path)
-    except ConversionError as e:
-        logger.warning(f"Pandoc conversion failed: {e}. Falling back to Azure Document Intelligence.")
-        return _convert_with_azure_di(docx_path)
-
-def _convert_with_pandoc(docx_path: str) -> str:
-    """
-    Convert DOCX to plain text using Pandoc
-    """
-    try:
-        cmd = [
-            settings.PANDOC_PATH,
-            docx_path,
-            '-f', 'docx',
-            '-t', 'plain',
-            '--wrap=none'
-        ]
-        
-        process = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        
-        return process.stdout
-        
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Pandoc conversion failed: {e.stderr}")
-        raise ConversionError(f"Pandoc conversion failed: {e.stderr}")
-
-def _convert_with_azure_di(docx_path: str) -> str:
     """
     Convert DOCX to plain text using Azure Document Intelligence
     """
@@ -64,24 +25,29 @@ def _convert_with_azure_di(docx_path: str) -> str:
         )
 
     try:
-        document_analysis_client = DocumentAnalysisClient(
+        document_intelligence_client = DocumentIntelligenceClient(
             endpoint=endpoint,
             credential=AzureKeyCredential(key)
         )
 
+        # Read file as bytes
         with open(docx_path, "rb") as f:
-            poller = document_analysis_client.begin_analyze_document(
-                "prebuilt-document", f
-            )
-        result = poller.result()
+            file_bytes = f.read()
 
-        # Extract text content
-        text_content = []
-        for page in result.pages:
-            for line in page.lines:
-                text_content.append(line.content)
+        # Create analyze request with bytes source
+        analyze_request = AnalyzeDocumentRequest(
+            bytes_source=file_bytes  # Changed from base64_source to bytes_source
+        )
+
+        # Start analysis
+        poller = document_intelligence_client.begin_analyze_document(
+            "prebuilt-layout",
+            analyze_request
+        )
         
-        return '\n'.join(text_content)
+        result: AnalyzeResult = poller.result()
+
+        return result.content
 
     except Exception as e:
         logger.error(f"Azure Document Intelligence conversion failed: {str(e)}")
@@ -103,3 +69,7 @@ def cleanup_temp_files():
             os.sync()  # Ensure file system is synced
     except Exception as e:
         logger.error(f"Failed to cleanup temp files: {str(e)}")
+
+class ConversionError(Exception):
+    """Custom exception for conversion failures"""
+    pass

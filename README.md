@@ -1,85 +1,139 @@
-# Document Comparison Solution Accelerator
+<div align="center">
+  <h1>🔄 Document Comparison Solution Accelerator</h1>
+  <p><strong>A starting point for building document comparison solutions using Azure OpenAI and Document Intelligence</strong></p>
+</div>
 
-A FastAPI-based solution for comparing Word documents and generating intelligent changelogs using Azure OpenAI and Azure Document Intelligence.
+<div align="center">
+  <img src="preview.png" alt="Document Comparison Preview" width="800" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+</div>
 
-## Features
+<div align="center">
+  <p>
+    <a href="#features">Features</a> •
+    <a href="#prerequisites">Prerequisites</a> •
+    <a href="#quick-start">Quick Start</a> •
+    <a href="#architecture">Architecture</a>
+  </p>
+</div>
 
-- DOCX to HTML conversion using Pandoc with Azure Document Intelligence fallback
-- Intelligent document comparison with content-aware diffing
-- Smart changelog generation using Azure OpenAI
-- Support for complex document structures (tables, lists, images, etc.)
-- Robust HTML normalization for accurate comparisons
+---
 
-## Prerequisites
+## 🎯 Purpose
 
-- Python 3.11+
-- Pandoc
-- Azure OpenAI account
-- Azure Document Intelligence account
-- Poetry (recommended) or pip
+This solution accelerator serves as a **reference implementation** and **starting point** for developers looking to build document comparison solutions using Azure services. It demonstrates:
 
-## Installation
+- Integration of Azure OpenAI for intelligent change analysis
+- Usage of Azure Document Intelligence for document processing
+- Implementation patterns for document comparison workflows
+
+> **Note**: This is not a production-ready solution, but rather a foundation to help you get started faster with your own implementation.
+
+## ✨ Features
+
+- 📄 Upload and compare DOCX documents
+- 🔍 Interactive diff viewer with line jumping
+- 🤖 AI-powered change summarization
+- 📊 Similarity scoring and analysis
+- 🎯 Demo mode with sample Microsoft SLA documents
+
+## 🚀 Prerequisites
+
+- Python 3.8+
+- Node.js 16+
+- Azure OpenAI service access
+- Azure Document Intelligence service access
+- Pandoc installation
+
+## ⚡ Quick Start
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/document-comparison-solution-accelerator.git
+git clone https://github.com/aymenfurter/document-comparison-solution-accelerator.git
 cd document-comparison-solution-accelerator
 ```
 
-2. Install dependencies:
+2. Set up environment:
 ```bash
-poetry install
-# or using pip
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your Azure credentials
+nano .env
+```
+
+3. Install backend dependencies:
+```bash
 pip install -r requirements.txt
 ```
 
-3. Copy `.env.example` to `.env` and configure your settings:
+4. Install frontend dependencies:
 ```bash
-cp .env.example .env
+cd frontend
+npm install
 ```
 
-4. Configure environment variables in `.env`
-
-## Configuration
-
-Required environment variables:
-- Azure OpenAI settings
-- Azure Document Intelligence credentials
-- Application settings
-
-See `.env.example` for all available options.
-
-## Usage
-
-1. Start the server:
+5. Start the backend server:
 ```bash
-uvicorn app.main:app --reload
+# From root directory
+PYTHONPATH=. uvicorn app.main:app --reload
 ```
 
-2. API endpoints:
-- `POST /api/v1/upload`: Upload two documents for comparison
-- `GET /api/v1/status/{job_id}`: Check comparison status
-- `GET /health`: Application health check
-
-## API Documentation
-
-Once running, access the API documentation at:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-
-## Development
-
-Run tests:
+6. Start the frontend development server:
 ```bash
-PYTHONPATH=./ pytest
+# From frontend directory
+npm start
 ```
 
-Enable debug logging:
-```bash
-PYTHONPATH=./ LOG_LEVEL=DEBUG uvicorn app.main:app --reload
+7. Access the application at `http://localhost:3000`
+
+## 🔧 Environment Configuration
+
+Required environment variables in `.env`:
+
+```ini
+AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com
+AZURE_OPENAI_KEY=your-api-key
+AZURE_OPENAI_MODEL=gpt-4
+AZURE_DOC_INTELLIGENCE_ENDPOINT=https://your-doc-intel.cognitiveservices.azure.com
+AZURE_DOC_INTELLIGENCE_KEY=your-doc-intel-key
 ```
 
-## Contributing
+## 🏗️ Architecture
+
+### Backend Components
+
+- 🧠 Azure OpenAI integration for change analysis
+- 📝 Azure Document Intelligence for document processing
+- 🔄 Diff generation and processing services
+
+### Frontend Components
+
+- ⚛️ React with TypeScript
+- 🎨 FluentUI components
+- 🔍 Interactive diff viewer
+- 📤 Real-time file upload
+- 📱 Responsive layout
+
+## 🔌 API Endpoints
+
+- `POST /api/v1/upload`: Upload documents for comparison
+- `GET /health`: Service health check
+
+## 💻 Development
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run integration tests
+pytest tests/integration -v -m integration
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
 
 1. Fork the repository
 2. Create a feature branch
@@ -87,6 +141,10 @@ PYTHONPATH=./ LOG_LEVEL=DEBUG uvicorn app.main:app --reload
 4. Push to the branch
 5. Create a Pull Request
 
-## License
+## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## ⚠️ Disclaimer
+
+This solution accelerator is provided as-is and is meant to serve as a reference implementation. You should review and adapt the code to meet your specific requirements and security needs before using it in a production environment.

@@ -58,10 +58,6 @@ class TestEndToEnd:
             # assert response.status_code == 200
             result = response.json()
 
-            # Check response structure
-            # assert "diff_result" in result
-            # assert "changelog" in result
-            
             # Save results for inspection
             output_dir = SAMPLES_DIR / "test_output"
             output_dir.mkdir(exist_ok=True)

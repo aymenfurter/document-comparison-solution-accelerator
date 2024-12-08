@@ -6,13 +6,12 @@ pydantic
 pydantic-settings
 
 # Azure Services
-azure-ai-formrecognizer
+azure-ai-documentintelligence
 openai
 
 # Document Processing
 beautifulsoup4
 diff-match-patch
-pandoc
 
 # Testing
 pytest
