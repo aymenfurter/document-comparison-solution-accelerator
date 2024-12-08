@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>🔄 Document Comparison Solution Accelerator</h1>
-  <p><strong>A starting point for building document comparison solutions using Azure OpenAI and Document Intelligence</strong></p>
+  <h1>Document Comparison Solution Accelerator</h1>
+  <p><strong>A starting point for building change log generation use cases using Azure OpenAI and Document Intelligence</strong></p>
 </div>
 
 <div align="center">
@@ -23,8 +23,8 @@
 This solution accelerator serves as a **reference implementation** and **starting point** for developers looking to build document comparison solutions using Azure services. It demonstrates:
 
 - Integration of Azure OpenAI for intelligent change analysis
-- Usage of Azure Document Intelligence for document processing
-- Implementation patterns for document comparison workflows
+- Usage of Azure Document Intelligence for OCR
+- Document comparison workflow
 
 > **Note**: This is not a production-ready solution, but rather a foundation to help you get started faster with your own implementation.
 
@@ -34,7 +34,6 @@ This solution accelerator serves as a **reference implementation** and **startin
 - 🔍 Interactive diff viewer with line jumping
 - 🤖 AI-powered change summarization
 - 📊 Similarity scoring and analysis
-- 🎯 Demo mode with sample Microsoft SLA documents
 
 ## 🚀 Prerequisites
 
@@ -42,7 +41,6 @@ This solution accelerator serves as a **reference implementation** and **startin
 - Node.js 16+
 - Azure OpenAI service access
 - Azure Document Intelligence service access
-- Pandoc installation
 
 ## ⚡ Quick Start
 
@@ -111,7 +109,6 @@ AZURE_DOC_INTELLIGENCE_KEY=your-doc-intel-key
 - ⚛️ React with TypeScript
 - 🎨 FluentUI components
 - 🔍 Interactive diff viewer
-- 📤 Real-time file upload
 - 📱 Responsive layout
 
 ## 🔌 API Endpoints
