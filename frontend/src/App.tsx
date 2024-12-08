@@ -364,12 +364,12 @@ const ChangelogViewer: React.FC<{
 // Add demo mode functionality and UI elements
 const DEMO_FILES = {
   source: {
-    url: 'https://www.microsoft.com/licensing/docs/documents/download/OnlineSvcsConsolidatedSLA(WW)(English)(November2023)(CR).docx',
-    name: 'MS SLA November 2023'
-  },
-  target: {
     url: 'https://www.microsoft.com/licensing/docs/documents/download/OnlineSvcsConsolidatedSLA(WW)(English)(August2023)(CR).docx',
     name: 'MS SLA August 2023'
+  },
+  target: {
+    url: 'https://www.microsoft.com/licensing/docs/documents/download/OnlineSvcsConsolidatedSLA(WW)(English)(November2023)(CR).docx',
+    name: 'MS SLA November 2023'
   }
 };
 

@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from app.routers import compare
 from app.core.config import settings
+import os
 
 app = FastAPI(
     title="Document Comparison API",
@@ -18,6 +20,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount the static files directory (if it exists)
+if os.path.exists("/app/static/assets"):
+    app.mount("/assets", StaticFiles(directory="/app/static/assets"), name="static")
+
+
+@app.get("/")
+async def read_root():
+    return FileResponse("/app/static/index.html")
 
 # Include routers
 app.include_router(compare.router, prefix="/api/v1", tags=["comparison"])
