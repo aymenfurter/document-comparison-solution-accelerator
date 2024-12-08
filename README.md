@@ -9,10 +9,10 @@
 
 <div align="center">
   <p>
-    <a href="#features">Features</a> •
-    <a href="#prerequisites">Prerequisites</a> •
-    <a href="#quick-start">Quick Start</a> •
-    <a href="#architecture">Architecture</a>
+    <a href="#-features">Features</a> •
+    <a href="#-prerequisites">Prerequisites</a> •
+    <a href="#-quick-start">Quick Start</a> •
+    <a href="#-architecture">Architecture</a>
   </p>
 </div>
 
